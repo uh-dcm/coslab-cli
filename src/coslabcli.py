@@ -1,6 +1,7 @@
 import os
 import argparse
 import json
+import csv
 import imghdr ## todo: will be depracted
 
 import yaml
@@ -10,6 +11,7 @@ from coslab import aws
 from coslab import googlecloud
 from coslab import azure_vision
 from coslab import taggerresults
+from coslab import tag_comparator
 ## import imagetaggers
 
 def image_files(folder):
@@ -74,7 +76,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "--csv",
         type=str,
-        help="Where the pickle results are stored.",
+        help="Where the CVS results are stored.",
+    )
+
+    comparators = {
+        'glove' : tag_comparator.glove_comparator,
+        'w2v': tag_comparator.w2v_comparator
+    }
+
+    parser.add_argument(
+        '--compare',
+        choices=comparators.keys(),
+        nargs='+',
     )
 
     args = parser.parse_args()
@@ -104,6 +117,11 @@ if __name__ == "__main__":
 
         bar.finish()
 
+    comparisons = {}
+
+    for comparator in args.compare:
+        comparisons[ comparator ] = tag_comparator.compare_data( out, comparator=comparators[ comparator ] )
+
     if args.sql:
         out.export_sql( args.sql )
 
@@ -112,4 +130,18 @@ if __name__ == "__main__":
 
     if args.csv:
         out.export_csv( args.csv )
+        
+        for comparator in args.compare:
+            fname = f"{args.csv.replace('.csv', '')}-{comparator}.csv"
+
+            with open( fname, 'w') as f:
+                csvf = csv.writer( f )
+                for services, results in comparisons[ comparator ].items():
+                    for label, scores in results.items():
+                        for score in scores:
+                            csvf.writerow( [ services[0], services[1], label, score ] )
+                f.close()
+
+
+
 
