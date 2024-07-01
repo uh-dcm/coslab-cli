@@ -71,6 +71,12 @@ if __name__ == "__main__":
         help="Where the pickle results are stored.",
     )
 
+    parser.add_argument(
+        "--csv",
+        type=str,
+        help="Where the pickle results are stored.",
+    )
+
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -103,4 +109,7 @@ if __name__ == "__main__":
 
     if args.pickle:
         out.export_pickle( args.pickle )
+
+    if args.csv:
+        out.export_csv( args.csv )
 
