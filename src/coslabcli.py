@@ -1,9 +1,9 @@
 import os
 import argparse
 import json
-import yaml
+import imghdr ## todo: will be depracted
 
-import imghdr
+import yaml
 from progress.bar import Bar
 
 from coslab import aws
