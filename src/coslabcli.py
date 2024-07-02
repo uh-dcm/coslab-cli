@@ -2,7 +2,8 @@ import os
 import argparse
 import json
 import csv
-import imghdr ## todo: will be depracted
+import filetype
+
 
 import yaml
 from progress.bar import Bar
@@ -18,7 +19,7 @@ def image_files(folder):
     out = []
     for root, folders, files in os.walk(folder):
         files = map(lambda f: root + '/' + f, files)
-        files = filter(lambda f: imghdr.what(f) != None, files)
+        files = filter(lambda f: filetype.guess(f).mime.startswith('image/'), files)
         out += files
     return list(out)
 
